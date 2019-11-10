@@ -33,6 +33,13 @@ class CollisionBox(CollisionObject):
 
 	def in_collision(self, target):
 		# FILL in your code here
+		bottom_left_coordinate = self.location - self.half_lengths
+		top_left_coordinate = self.location + self.half_lengths
+
+		for bottom_left, top_right, target in zip(bottom_left_coordinate,top_left_coordinate,target):
+			if not(target >= bottom_left and target <= top_right):
+				return False;
+
 		return True
 
 class CollisionSphere(CollisionObject):
@@ -53,7 +60,7 @@ class CollisionSphere(CollisionObject):
 		dist = np.sum(dist)
 		dist = np.sqrt(dist)
 
-		if dist >= self.radius:
+		if dist <= self.radius:
 			return True
 
 		else: 

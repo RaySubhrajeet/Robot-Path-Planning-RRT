@@ -1,6 +1,6 @@
 import numpy as np
-from collision import CollisionBox, CollisionSphere
 import sys
+
 
 class RRT(object):
 	"""
@@ -94,9 +94,10 @@ class RRT(object):
 			nearest_node=self._get_nearest_neighbor(sample)
 			new_node=self._extend_sample(sample,nearest_node)
 
-			if new_node and self._check_for_completion(new_node):
+			if new_node!= None and self._check_for_completion(new_node):
 				# FILL in your code here
-				path=self._trace_path_from_start()
+				child=new_node.add_child(self.goal.state)
+				path=self._trace_path_from_start(child)
 				
 				return path
 
@@ -132,19 +133,12 @@ class RRT(object):
 		nearestnode=self.start
 		nodes=self.start.__iter__()
 		returndNodes=next(nodes,None)
-		for n in returndNodes:			
-			print(n.state)
-			print("............................................................................")
-		mindistance=sys.float_info.max
+		min_distance=sys.float_info.max
 		for node in returndNodes:
 			currdistance=self.get_distance(sample,node.state) 
-			if currdistance < mindistance:
-				mindistance=currdistance
+			if currdistance < min_distance:
+				min_distance=currdistance
 				nearestnode=node
-			print(nearestnode.state)
-			print(mindistance)
-			print("............................................................................")
-
 
 		return nearestnode
 
@@ -181,10 +175,7 @@ class RRT(object):
 		
 		newnode = [neighbor.state[i] + stepsizevector[i] for i in range(len(stepsizevector))] 
 
-		if self._check_for_collision(newnode.state):
-			return None
-
-		else:
+		if not(self._check_for_collision(newnode)):
 			child=neighbor.add_child(newnode)
 			return child
 
@@ -217,7 +208,7 @@ class RRT(object):
 		returnedNodes=next(nodes,None)
 		path=[]
 		is_goal_reached=True
-		for nd in returnedNodes:
+		for nd in returnedNodes:		
 			path.extend(nd.state)
 			for l1,l2 in zip(node.state,nd.state):
 				if l1 != l2:
@@ -225,7 +216,7 @@ class RRT(object):
 			if is_goal_reached:
 				return path
 
-		return None
+		return path
 
 	def _check_for_collision(self, sample):
 		"""
@@ -234,4 +225,10 @@ class RRT(object):
 		:returns: A boolean value indicating that sample is in collision.
 		"""
 		# FILL in your code here
+		for obstacle in self.obstacles:
+			is_collision=obstacle.in_collision(sample)
+			if is_collision==True:
+				return True
+
+
 		return False

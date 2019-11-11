@@ -97,7 +97,7 @@ class RRT(object):
 			if new_node!= None and self._check_for_completion(new_node):
 				# FILL in your code here
 				child=new_node.add_child(self.goal.state)
-				path=self._trace_path_from_start(child)
+				path=self._trace_path_from_start()
 				
 				return path
 
@@ -169,9 +169,9 @@ class RRT(object):
 		line_vector=np.subtract(sample,neighbor.state)   
 		val=np.linalg.norm(line_vector)
 		unit_vector=[linevec/val for linevec in line_vector]
-		stepsizevector=[]
-		for vec in unit_vector:
-			stepsizevector.append(vec *self.step_size)
+		stepsizevector=[unitvec * self.step_size for unitvec in unit_vector]
+		# for vec in unit_vector:
+		# 	stepsizevector.append(vec *self.step_size)
 		
 		newnode = [neighbor.state[i] + stepsizevector[i] for i in range(len(stepsizevector))] 
 
@@ -208,13 +208,14 @@ class RRT(object):
 		returnedNodes=next(nodes,None)
 		path=[]
 		is_goal_reached=True
-		for nd in returnedNodes:		
-			path.extend(nd.state)
-			for l1,l2 in zip(node.state,nd.state):
-				if l1 != l2:
-					is_goal_reached=False
-			if is_goal_reached:
-				return path
+		for nd in returnedNodes:				
+			path.append(nd.state)
+			if node!=None:
+				for l1,l2 in zip(node.state,nd.state):
+					if l1 != l2:
+						is_goal_reached=False
+				if is_goal_reached==True:
+					return path
 
 		return path
 

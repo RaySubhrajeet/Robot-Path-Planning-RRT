@@ -48,6 +48,7 @@ class PlanarRRT(RRT):
 
 			if new_node and self._check_for_completion(new_node):
 				# FILL in your code here
+				child=new_node.add_child(self.goal.state)
 				path=self._trace_path_from_start()
 
 				self._visualize(path=path, hold=True)

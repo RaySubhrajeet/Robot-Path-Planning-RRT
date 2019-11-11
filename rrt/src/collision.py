@@ -1,12 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
 
-class CollisionObject(ABC):
+class CollisionObject():
 	"""
 	Abstract class for a parametrically defined collision object.
 	"""
+	__metaclass__ = ABCMeta
 	@abstractmethod
 	def in_collision(self, target):
 		"""

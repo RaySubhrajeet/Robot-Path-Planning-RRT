@@ -1,7 +1,8 @@
 import numpy as np
 from collision import CollisionBox, CollisionSphere
+import sys
 
-class RRT():
+class RRT(object):
 	"""
 	Simple implementation of Rapidly-Exploring Random Trees (RRT)
 	"""
@@ -91,11 +92,11 @@ class RRT():
 			# FILL in your code here
 			sample=self._get_random_sample()
 			nearest_node=self._get_nearest_neighbor(sample)
-			newnode=self._extend_sample()
+			new_node=self._extend_sample(sample,nearest_node)
 
 			if new_node and self._check_for_completion(new_node):
 				# FILL in your code here
-				path=_trace_path_from_start()
+				path=self._trace_path_from_start()
 				
 				return path
 
@@ -111,8 +112,8 @@ class RRT():
 		"""
 		# FILL in your code here
 		sample=[]
-		for i in self.dim_ranges:
-			sample.extend(np.random.uniform(i[0],i[1]))
+		for dim in self.dim_ranges:
+			sample.append(np.random.uniform(dim[0],dim[1]))
 
 		return sample
 
@@ -128,19 +129,27 @@ class RRT():
 		# FILL in your code here
 
 		
-		nearestnode=null
+		nearestnode=self.start
 		nodes=self.start.__iter__()
-		mindistance=get_distance(sample,nodes[0])
-		for node in nodes:
-			currdistance=get_distance(sample,node) 
+		returndNodes=next(nodes,None)
+		for n in returndNodes:			
+			print(n.state)
+			print("............................................................................")
+		mindistance=sys.float_info.max
+		for node in returndNodes:
+			currdistance=self.get_distance(sample,node.state) 
 			if currdistance < mindistance:
 				mindistance=currdistance
 				nearestnode=node
+			print(nearestnode.state)
+			print(mindistance)
+			print("............................................................................")
 
-		return node
+
+		return nearestnode
 
 	
-	def get_distance(A, B):
+	def get_distance(self,A, B):
 		"""
 		Returns Euclidean distance between two vectors
 		"""
@@ -163,17 +172,20 @@ class RRT():
 		:returns: The new Node object. On failure (collision), returns None.
 		"""
 		# FILL in your code here
-		line_vector=np.subtract(sample,neighbor)   
+		line_vector=np.subtract(sample,neighbor.state)   
 		val=np.linalg.norm(line_vector)
 		unit_vector=[linevec/val for linevec in line_vector]
-		stepsizevector=unit_vector * self.step_size
-		newnode=np.sum(neighbor,stepsizevector)
+		stepsizevector=[]
+		for vec in unit_vector:
+			stepsizevector.append(vec *self.step_size)
+		
+		newnode = [neighbor.state[i] + stepsizevector[i] for i in range(len(stepsizevector))] 
 
-		if _check_for_collision(sample):
+		if self._check_for_collision(newnode.state):
 			return None
 
 		else:
-			child=neighbor.add_child(sample)
+			child=neighbor.add_child(newnode)
 			return child
 
 
@@ -186,7 +198,7 @@ class RRT():
 		:returns: Boolean indicating node is close enough for completion.
 		"""
 		# FILL in your code here
-		if get_distance(node.state,self.goal_state)<= self.step_size:
+		if self.get_distance(node.state,self.goal.state)<= self.step_size:
 			return True
 		else:
 			return False
@@ -202,10 +214,15 @@ class RRT():
 		"""
 		# FILL in your code here
 		nodes=self.start.__iter__()
+		returnedNodes=next(nodes,None)
 		path=[]
-		for nd in nodes:
+		is_goal_reached=True
+		for nd in returnedNodes:
 			path.extend(nd.state)
-			if np.allclose(node.state,nd.state):
+			for l1,l2 in zip(node.state,nd.state):
+				if l1 != l2:
+					is_goal_reached=False
+			if is_goal_reached:
 				return path
 
 		return None
@@ -217,3 +234,4 @@ class RRT():
 		:returns: A boolean value indicating that sample is in collision.
 		"""
 		# FILL in your code here
+		return False

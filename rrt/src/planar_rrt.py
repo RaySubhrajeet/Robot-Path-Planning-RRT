@@ -44,11 +44,11 @@ class PlanarRRT(RRT):
 			# FILL in your code here
 			sample=self._get_random_sample()
 			nearest_node=self._get_nearest_neighbor(sample)
-			newnode=self._extend_sample()
+			new_node=self._extend_sample(sample,nearest_node)
 
 			if new_node and self._check_for_completion(new_node):
 				# FILL in your code here
-				path=_trace_path_from_start()
+				path=self._trace_path_from_start()
 
 				self._visualize(path=path, hold=True)
 				return path
